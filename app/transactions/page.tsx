@@ -1,4 +1,4 @@
-const Transactions = () => {
+const TransactionsPage = () => {
     return ( 
         <div className="flex flex-col gap-4">
             <h1 className="text-2xl font-bold">Transactions</h1>
@@ -7,4 +7,4 @@ const Transactions = () => {
      );
 }
  
-export default Transactions;
+export default TransactionsPage;
