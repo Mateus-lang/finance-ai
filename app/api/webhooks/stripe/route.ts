@@ -2,16 +2,7 @@ import { clerkClient } from "@clerk/nextjs/server";
 import { NextResponse } from "next/server";
 import Stripe from "stripe";
 
-export const config = {
-  api: {
-    bodyParser: false,
-  },
-};
-
-export const dynamic = "force-dynamic";
-export const preferredRegion = "home";
-export const fetchCache = "force-no-store";
-export const runtime = "nodejs";
+// Apenas esta linha para o Stripe funcionar corretamente!
 export const bodyParser = false;
 
 export const POST = async (request: Request) => {
@@ -41,7 +32,6 @@ export const POST = async (request: Request) => {
 
   switch (event.type) {
     case "invoice.paid": {
-      // Atualizar o usuário com o seu novo plano
       const { customer, subscription, subscription_details } =
         event.data.object;
       const clerkUserId = subscription_details?.metadata?.clerk_user_id;
@@ -60,7 +50,6 @@ export const POST = async (request: Request) => {
       break;
     }
     case "customer.subscription.deleted": {
-      // Remover plano premium do usuário
       const subscription = await stripe.subscriptions.retrieve(
         event.data.object.id,
       );
@@ -77,6 +66,7 @@ export const POST = async (request: Request) => {
           subscriptionPlan: null,
         },
       });
+      break;
     }
   }
   return NextResponse.json({ received: true });
