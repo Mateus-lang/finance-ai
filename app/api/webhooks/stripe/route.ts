@@ -2,8 +2,7 @@ import { clerkClient } from "@clerk/nextjs/server";
 import { NextResponse } from "next/server";
 import Stripe from "stripe";
 
-// Apenas esta linha para o Stripe funcionar corretamente!
-export const bodyParser = false;
+// NÃO exporte bodyParser ou config!
 
 export const POST = async (request: Request) => {
   if (!process.env.STRIPE_SECRET_KEY || !process.env.STRIPE_WEBHOOK_SECRET) {
