@@ -11,15 +11,9 @@ export const POST = async (request: Request) => {
     return NextResponse.error();
   }
   const text = await request.text();
-  if (!process.env.STRIPE_SECRET_KEY) {
-    throw new Error(
-      "STRIPE_SECRET_KEY is not defined in the environment variables.",
-    );
-  }
   const stripe = new Stripe(process.env.STRIPE_SECRET_KEY, {
     apiVersion: "2024-10-28.acacia",
   });
-
   const event = stripe.webhooks.constructEvent(
     text,
     signature,
@@ -28,7 +22,7 @@ export const POST = async (request: Request) => {
 
   switch (event.type) {
     case "invoice.paid": {
-      // atualizar o usuario com o seu novo plano
+      // Atualizar o usuário com o seu novo plano
       const { customer, subscription, subscription_details } =
         event.data.object;
       const clerkUserId = subscription_details?.metadata?.clerk_user_id;
@@ -47,11 +41,11 @@ export const POST = async (request: Request) => {
       break;
     }
     case "customer.subscription.deleted": {
-      //Remover o plano Premium do usuario
+      // Remover plano premium do usuário
       const subscription = await stripe.subscriptions.retrieve(
         event.data.object.id,
       );
-      const clerkUserId = subscription.metadata?.clerk_user_id;
+      const clerkUserId = subscription.metadata.clerk_user_id;
       if (!clerkUserId) {
         return NextResponse.error();
       }
