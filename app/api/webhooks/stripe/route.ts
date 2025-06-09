@@ -8,6 +8,12 @@ export const config = {
   },
 };
 
+export const dynamic = "force-dynamic";
+export const preferredRegion = "home";
+export const fetchCache = "force-no-store";
+export const runtime = "nodejs";
+export const bodyParser = false;
+
 export const POST = async (request: Request) => {
   if (!process.env.STRIPE_SECRET_KEY || !process.env.STRIPE_WEBHOOK_SECRET) {
     return NextResponse.error();
