@@ -2,6 +2,12 @@ import { clerkClient } from "@clerk/nextjs/server";
 import { NextResponse } from "next/server";
 import Stripe from "stripe";
 
+export const config = {
+  api: {
+    bodyParser: false,
+  },
+};
+
 export const POST = async (request: Request) => {
   if (!process.env.STRIPE_SECRET_KEY || !process.env.STRIPE_WEBHOOK_SECRET) {
     return NextResponse.error();
@@ -10,15 +16,22 @@ export const POST = async (request: Request) => {
   if (!signature) {
     return NextResponse.error();
   }
-  const text = await request.text();
+  const buffer = await request.arrayBuffer();
+  const text = Buffer.from(buffer).toString("utf-8");
   const stripe = new Stripe(process.env.STRIPE_SECRET_KEY, {
     apiVersion: "2025-02-24.acacia",
   });
-  const event = stripe.webhooks.constructEvent(
-    text,
-    signature,
-    process.env.STRIPE_WEBHOOK_SECRET,
-  );
+  let event;
+  try {
+    event = stripe.webhooks.constructEvent(
+      text,
+      signature,
+      process.env.STRIPE_WEBHOOK_SECRET,
+    );
+  } catch (err) {
+    console.error("Erro ao validar assinatura do Stripe:", err);
+    return NextResponse.error();
+  }
 
   switch (event.type) {
     case "invoice.paid": {
